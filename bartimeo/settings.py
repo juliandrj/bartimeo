@@ -94,6 +94,7 @@ INSTALLED_APPS = [
     'rest_auth',
     'corsheaders',
     'api',
+    'modelos'
 ]
 
 MIDDLEWARE = [
