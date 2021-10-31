@@ -61,7 +61,8 @@ AUTH_LDAP_REQUIRE_GROUP = 'cn=activos,ou=grupos,dc=bartimeo,dc=com'
 AUTH_LDAP_DENY_GROUP = 'cn=inactivos,ou=grupos,dc=bartimeo,dc=com'
 AUTH_LDAP_USER_FLAGS_BY_GROUP = {
     'is_active': 'cn=activos,ou=grupos,dc=bartimeo,dc=com',
-    'is_superuser': 'cn=administradores,ou=grupos,dc=bartimeo,dc=com'
+    'is_superuser': 'cn=administradores,ou=grupos,dc=bartimeo,dc=com',
+    'is_staff': 'cn=administradores,ou=grupos,dc=bartimeo,dc=com'
 }
 AUTH_LDAP_FIND_GROUP_PERMS = True
 AUTH_LDAP_CACHE_TIMEOUT = 60
