@@ -40,7 +40,7 @@ AUTHENTICATION_BACKENDS = (
 )
 
 #LDAP
-AUTH_LDAP_SERVER_URI = 'ldap://192.168.0.20'
+AUTH_LDAP_SERVER_URI = 'ldap://192.168.0.200'
 AUTH_LDAP_BIND_DN = "cn=admin,dc=bartimeo,dc=com"
 AUTH_LDAP_BIND_PASSWORD = os.environ.get('BARTIMEO_LDAP_PASSWORD')
 AUTH_LDAP_USER_SEARCH = LDAPSearch(
@@ -167,9 +167,9 @@ AUTH_PASSWORD_VALIDATORS = [
 # Internationalization
 # https://docs.djangoproject.com/en/3.2/topics/i18n/
 
-LANGUAGE_CODE = 'en-us'
+LANGUAGE_CODE = 'es-ES'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Europe/Madrid'
 
 USE_I18N = True
 
