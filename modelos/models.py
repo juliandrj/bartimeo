@@ -1,5 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User, Group
+from django.utils import timezone
  
 '''
 AUTENTICACION
@@ -166,6 +167,8 @@ class TareaPlantilla(models.Model):
     hito = models.ForeignKey(Hito, on_delete=models.PROTECT)
     unidadTiempo = models.ForeignKey(UnidadTiempo, on_delete=models.PROTECT)
     periodicidad = models.ForeignKey(Periodicidad, on_delete=models.PROTECT, default=1)
+    insumos = models.ManyToManyField(Insumo, through = 'InsumoTareaPlantilla', blank = True)
+    esMIPE = models.BooleanField(default=False, null=False)
     def __str__(self):
         return str(self.faseCultivo) + ', ' + str(self.orden) + ') ' + self.tareaPlantilla
     class Meta:
@@ -306,3 +309,68 @@ class Empleado(models.Model):
     class Meta:
         ordering = ('fechaContrato',)
         verbose_name_plural = 'RRHH - 01 Empleados'
+
+'''
+CULTIVO CONCRETO
+'''
+class Cultivo(models.Model):
+    finca = models.ForeignKey(Finca, on_delete=models.PROTECT)
+    tipoCultivo = models.ForeignKey(TipoCultivo, on_delete=models.PROTECT)
+    fechaInicio = models.DateField(null = False)
+    def __str__(self):
+        return str(self.finca) + ' ' + str(self.tipoCultivo)
+    class Meta:
+        ordering = ('finca','tipoCultivo','fechaInicio',)
+        verbose_name_plural = 'Cultivo - 01 Cultivos'
+
+class EstadoPlanta(models.Model):
+    etiqueta = models.CharField(max_length=512, blank=False, null=False)
+    icono = models.CharField(max_length=64, blank=False, null=False)
+    nivel = models.IntegerField(null=False)
+    def __str__(self):
+        return str(self.nivel) + ')' + self.etiqueta
+    class Meta:
+        ordering = ('nivel',)
+        verbose_name_plural = 'Cultivo - 02 Estados planta'
+
+class Planta(models.Model):
+    cultivo = models.ForeignKey(Cultivo, on_delete=models.PROTECT)
+    generacion = models.IntegerField(null=False, default=1)
+    linea = models.IntegerField(null=False, default=1)
+    consecutivo = models.IntegerField(null=False, default=1)
+    fechaSiembra = models.DateField(null = False)
+    posicion = models.ForeignKey(Posicion, on_delete=models.PROTECT)
+    estadosPlanta = models.ManyToManyField(EstadoPlanta, through='EstadoPlantaObservacion', blank=True)
+    def __str__(self):
+        return str(self.cultivo) + ')' + str(self.linea) + '/' + str(self.consecutivo)
+    class Meta:
+        ordering = ('cultivo','linea','consecutivo','fechaSiembra',)
+        verbose_name_plural = 'Cultivo - 02 Plantas'
+
+class EstadoPlantaObservacion(models.Model):
+    planta = models.ForeignKey(Planta, on_delete=models.PROTECT)
+    estadoPlanta = models.ForeignKey(EstadoPlanta, on_delete=models.PROTECT)
+    empleado = models.ForeignKey(Empleado, on_delete=models.PROTECT)
+    fecha = models.DateTimeField(default=timezone.now)
+    observacion = models.CharField(max_length=64, blank=False, null=False)
+    def __str__(self):
+        return str(self.planta) + ' -> ' + str(self.estadoPlanta)
+    class Meta:
+        ordering = ('fecha',)
+        verbose_name_plural = 'Cultivo - 03 Estados de la planta'
+
+'''
+TAREA CONCRETA
+'''
+class Tarea(models.Model):
+    tareaPlantilla = models.ForeignKey(TareaPlantilla, on_delete=models.PROTECT)
+    fechaInicial = models.DateField(null = False)
+    fechaFinal = models.DateField(blank=True, null = True)
+    observacion = models.CharField(max_length=1024, blank=True, null=True)
+    responsables = models.ManyToManyField(Empleado, blank=False)
+    plantas = models.ManyToManyField(Planta, blank=True)
+    def __str__(self):
+        return str(self.tareaPlantilla) + ' -> ' + str(self.fechaInicial)
+    class Meta:
+        ordering = ('fechaInicial',)
+        verbose_name_plural = 'Cultivo - 04 Tareas'

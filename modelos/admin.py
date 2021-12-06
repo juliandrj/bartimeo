@@ -65,7 +65,7 @@ class InsumoTareaPlantillaTabularInline(admin.TabularInline):
 
 @admin.register(TareaPlantilla)
 class TareaPlantillaModelAdmin(admin.ModelAdmin):
-    list_display = ('get_tipo_cultivo', 'get_fase', 'orden', 'tareaPlantilla')
+    list_display = ('get_tipo_cultivo', 'get_fase', 'orden', 'tareaPlantilla', 'esMIPE',)
     list_display_links = ('tareaPlantilla',)
     list_filter = ('faseCultivo',)
     inlines = [InsumoTareaPlantillaTabularInline,]
@@ -95,6 +95,58 @@ class HitoModelAdmin(admin.ModelAdmin):
     def get_unidad_tiempo(self, obj):
         return obj.unidadTiempo.unidadTiempo
 
+@admin.register(Cultivo)
+class CultivoModelAdmin(admin.ModelAdmin):
+    list_display = ('get_finca', 'get_tipo_cultivo', 'fechaInicio')
+
+    @admin.display(description='Finca')
+    def get_finca(self, obj):
+        return obj.finca.nombreFinca
+    
+    @admin.display(description='Tipo de cultivo')
+    def get_tipo_cultivo(self, obj):
+        return obj.tipoCultivo.tipoCultivo
+
+class EstadoPlantaObservacionTabularInline(admin.TabularInline):
+    model = EstadoPlantaObservacion
+    readonly_fields = ('fecha',)
+    extra = 0
+
+@admin.register(Planta)
+class PlantaModelAdmin(admin.ModelAdmin):
+    list_display = ('get_cultivo', 'fechaSiembra', 'generacion', 'linea', 'consecutivo')
+    list_display_links = ('fechaSiembra', 'generacion', 'linea', 'consecutivo',)
+    list_filter = ('cultivo','linea','consecutivo',)
+    inlines = [EstadoPlantaObservacionTabularInline,]
+
+    @admin.display(description='Cultivo')
+    def get_cultivo(self, obj):
+        return str(obj.cultivo)
+
+@admin.register(Tarea)
+class TareaModelAdmin(admin.ModelAdmin):
+    list_display = ('get_tarea', 'fechaInicial', 'fechaFinal', 'observacion')
+    list_filter = ('tareaPlantilla', 'fechaInicial', 'fechaFinal',)
+
+    @admin.display(description='Tarea')
+    def get_tarea(self, obj):
+        return str(obj.tareaPlantilla)
+
+@admin.register(Empleado)
+class EmpleadoModelAdmin(admin.ModelAdmin):
+    list_display = ('get_finca', 'get_nombres', 'fechaContrato',)
+    list_display_links = ('get_nombres', 'fechaContrato',)
+    list_filter = ('finca',)
+
+    @admin.display(description='Finca')
+    def get_finca(self, obj):
+        return str(obj.finca)
+    
+    @admin.display(description='Nombres')
+    def get_nombres(self, obj):
+        return str(obj.persona)
+
+
 admin.site.register(OpcionMenu)
 admin.site.register(UnidadMedida)
 admin.site.register(UnidadTiempo)
@@ -115,5 +167,6 @@ admin.site.register(Plaguicida)
 admin.site.register(Herramienta)
 admin.site.register(Semilla)
 admin.site.register(Inventario)
-admin.site.register(Empleado)
+admin.site.register(EstadoPlanta)
+
 admin.site.unregister(TokenProxy)
