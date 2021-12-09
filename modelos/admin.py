@@ -146,6 +146,33 @@ class EmpleadoModelAdmin(admin.ModelAdmin):
     def get_nombres(self, obj):
         return str(obj.persona)
 
+class CriterioFincaTabularInline(admin.TabularInline):
+    model = CriterioFinca
+    fields = ('criterio','fechaRegistro','fechaCaduca','ficheroSoporte','linkSoporte','aprobado',)
+    readonly_fields = ('criterio',)
+    extra = 0
+
+@admin.register(Finca)
+class FincaModelAdmin(admin.ModelAdmin):
+    list_display = ('nombreFinca', 'vereda', 'get_municipio',)
+    list_display_links = ('nombreFinca',)
+    list_filter = ('municipio',)
+    inlines = [CriterioFincaTabularInline,]
+
+    @admin.display(description='Municipio')
+    def get_municipio(self, obj):
+        return str(obj.municipio)
+
+@admin.register(Criterio)
+class CriterioModelAdmin(admin.ModelAdmin):
+    list_display = ('numero', 'textoCriterio', 'get_nivel_criterio',)
+    list_display_links = ('numero', 'textoCriterio',)
+    list_filter = ('numero',)
+    inlines = [CriterioFincaTabularInline,]
+
+    @admin.display(description='Nivel')
+    def get_nivel_criterio(self, obj):
+        return str(obj.nivelCriterio)
 
 admin.site.register(OpcionMenu)
 admin.site.register(UnidadMedida)
@@ -156,7 +183,6 @@ admin.site.register(Periodicidad)
 admin.site.register(TipoCultivo)
 admin.site.register(Posicion)
 admin.site.register(Pais)
-admin.site.register(Finca)
 admin.site.register(TipoFormulacion)
 admin.site.register(CategoriaToxicologica)
 admin.site.register(Agroquimico)
@@ -168,5 +194,6 @@ admin.site.register(Herramienta)
 admin.site.register(Semilla)
 admin.site.register(Inventario)
 admin.site.register(EstadoPlanta)
+admin.site.register(NivelCriterio)
 
 admin.site.unregister(TokenProxy)

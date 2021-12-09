@@ -185,6 +185,30 @@ class InsumoTareaPlantilla(models.Model):
         verbose_name_plural = 'Plantilla tareas - 08 Asignación de Insumos a Tareas'
 
 '''
+NORMA 30021 - BPM ICA
+'''
+class NivelCriterio(models.Model):
+    nivel = models.CharField(max_length=64, blank=False, null=False)
+    abreviatura = models.CharField(max_length=8, blank=False, null=False)
+    porcentajeMin = models.IntegerField(null=False)
+    def __str__(self):
+        return self.abreviatura
+    class Meta:
+        ordering = ('nivel',)
+        verbose_name_plural = 'Norma ICA - 01 Nivel criterio'
+
+class Criterio(models.Model):
+    numero = models.CharField(max_length=32, blank=False, null=False)
+    textoCriterio = models.CharField(max_length=2048, blank=False, null=False)
+    nivelCriterio = models.ForeignKey(NivelCriterio, on_delete=models.PROTECT, blank=False, null=False)
+    criterioPadre = models.ForeignKey('self', on_delete=models.PROTECT, null=True, blank=True)
+    def __str__(self):
+        return str(self.nivelCriterio) + ' ' + self.numero + '. ' + self.textoCriterio
+    class Meta:
+        ordering = ('numero',)
+        verbose_name_plural = 'Norma ICA - 02 Criterio'
+
+'''
 FINCA
 '''
 class Finca(models.Model):
@@ -192,11 +216,26 @@ class Finca(models.Model):
     vereda = models.CharField(max_length=2048, blank=False, null=False)
     posicion = models.ForeignKey(Posicion, on_delete=models.PROTECT)
     municipio = models.ForeignKey(Municipio, on_delete=models.PROTECT)
+    criterios = models.ManyToManyField(Criterio, through = 'CriterioFinca', blank = True)
     def __str__(self):
         return self.nombreFinca
     class Meta:
         ordering = ('nombreFinca',)
         verbose_name_plural = 'Predio - Fincas'
+
+class CriterioFinca(models.Model):
+    criterio = models.ForeignKey(Criterio, on_delete=models.PROTECT)
+    finca = models.ForeignKey(Finca, on_delete=models.PROTECT)
+    ficheroSoporte = models.FileField(null=True, blank=True)
+    linkSoporte = models.ForeignKey(OpcionMenu, on_delete=models.PROTECT, null=True, blank=True)
+    fechaRegistro = models.DateTimeField(default=timezone.now)
+    fechaCaduca = models.DateTimeField(null=True, blank=True)
+    aprobado = models.BooleanField(default=False)
+    def __str__(self):
+        return str(self.finca) + ' - ' + str(self.criterio)
+    class Meta:
+        ordering = ('finca','criterio',)
+        verbose_name_plural = 'Criterios de norma 30021 de 2017 - ICA'
 
 '''
 INSUMOS
@@ -304,6 +343,7 @@ class Empleado(models.Model):
     persona = models.ForeignKey(Persona, on_delete=models.PROTECT)
     finca = models.ForeignKey(Finca, on_delete=models.PROTECT)
     fechaContrato = models.DateTimeField(null=False)
+    activo = models.BooleanField(default=True)
     def __str__(self):
         return str(self.finca) + ' ' + str(self.persona)
     class Meta:
