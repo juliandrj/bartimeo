@@ -42,17 +42,10 @@ class MenuViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class EstadoPlantaObservacionViewSet(viewsets.ModelViewSet):
-    queryset = EstadoPlantaObservacion.objects.all()
-    serializer_class = EstadosPlantaObservacionSerializer
+class FincaViewSet(viewsets.ModelViewSet):
+    queryset = Finca.objects.all()
+    serializer_class = FincaSerializer
     permission_classes = [permissions.IsAuthenticated]
-    def get_queryset(self):
-        plantaId = self.request.query_params.get('planta', None)
-        if plantaId is not None:
-            queryset = EstadoPlantaObservacion.objects.filter(planta_id=plantaId).order_by('-fecha')
-        else:
-            queryset = EstadoPlantaObservacion.objects.all()
-        return queryset
 
 
 class PlantaViewSet(viewsets.ModelViewSet):

@@ -41,16 +41,35 @@ class EstadoPlantaSerializer(serializers.ModelSerializer):
         fields = ('etiqueta','icono','nivel',)
 
 
+class NivelCriterioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = NivelCriterio
+        fields = ('nivel','abreviatura','porcentajeMin',)
+
+
+class CriterioSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Criterio
+        fields = ('numero','textoCriterio','nivelCriterio',)
+
+
+class CriteroFincaSerializer(serializers.ModelSerializer):
+    criterio = CriterioSerializer(many=False, read_only=True)
+    class Meta:
+        model = CriterioFinca
+        fields = ('criterio','ficheroSoporte','linkSoporte','fechaRegistro','fechaCaduca','aprobado',)
+
+
 class FincaSerializer(serializers.ModelSerializer):
     posicion = PosicionSerializer(many=False, read_only=True)
+    criterios = CriteroFincaSerializer(source='criteriofinca_set', many=True, read_only=True)
     class Meta:
         model = Finca
-        fields = ('nombreFinca','vereda','posicion')
+        fields = ('nombreFinca','vereda','posicion','criterios',)
 
 
 class EmpleadoSerializer(serializers.ModelSerializer):
     persona = PersonaSerializer(many=False, read_only=True)
-    finca = FincaSerializer(many=False, read_only=True)
     class Meta:
         model = Empleado
         fields = ('finca','persona','fechaContrato','activo')
@@ -66,9 +85,10 @@ class EstadosPlantaObservacionSerializer(serializers.ModelSerializer):
 
 class PlantaSerializer(serializers.ModelSerializer):
     posicion = PosicionSerializer(many = False, read_only = True)
+    estadosPlanta = EstadosPlantaObservacionSerializer(source='estadoplantaobservacion_set', many = True, read_only = True)
     class Meta:
         model = Planta
-        fields = ('id','cultivo','generacion','linea','consecutivo','fechaSiembra','posicion',)
+        fields = ('id','cultivo','generacion','linea','consecutivo','fechaSiembra','posicion','estadosPlanta',)
 
 
 class TareaPlantillaSerializer(serializers.ModelSerializer):
@@ -81,4 +101,4 @@ class TareaSerializer(serializers.ModelSerializer):
     tareaPlantilla = TareaPlantillaSerializer(many=False, read_only=True)
     class Meta:
         model = Tarea
-        fields = ('tareaPlantilla','fechaInicial','fechaFinal','observacion',)
+        fields = ('tareaPlantilla','fechaInicial','fechaFinal','observacion','plantas',)
