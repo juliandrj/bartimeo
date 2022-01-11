@@ -6,7 +6,7 @@ from api.serializers import *
 from modelos.models import *
 
 
-class UserViewSet(viewsets.ModelViewSet):
+class UserViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows users to be viewed or edited.
     """
@@ -15,7 +15,7 @@ class UserViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class GroupViewSet(viewsets.ModelViewSet):
+class GroupViewSet(viewsets.ReadOnlyModelViewSet):
     """
     API endpoint that allows groups to be viewed or edited.
     """
@@ -24,13 +24,13 @@ class GroupViewSet(viewsets.ModelViewSet):
     permission_classes = [permissions.IsAuthenticated]
 
 
-class OpcionMenuViewSet(viewsets.ModelViewSet):
+class OpcionMenuViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = OpcionMenu.objects.all()
     serializer_class = OpcionMenuSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-class MenuViewSet(viewsets.ModelViewSet):
+class MenuViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = OpcionMenu.objects.all()
     serializer_class = OpcionMenuSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -42,19 +42,47 @@ class MenuViewSet(viewsets.ModelViewSet):
         return queryset
 
 
-class FincaViewSet(viewsets.ModelViewSet):
+class EmpleadoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Empleado.objects.all()
+    serializer_class = EmpleadoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return Empleado.objects.filter(id=self.request.user.id)
+
+
+class FincaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Finca.objects.all()
     serializer_class = FincaSerializer
     permission_classes = [permissions.IsAuthenticated]
 
 
-class PlantaViewSet(viewsets.ModelViewSet):
+class CultivoViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Cultivo.objects.all()
+    serializer_class = CultivoSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        fincaId = self.request.query_params.get('finca', None)
+        if fincaId is not None:
+            queryset = Cultivo.objects.filter(finca__id=fincaId)
+        else:
+            queryset = Cultivo.objects.all()
+        return queryset
+
+
+class PlantaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Planta.objects.all()
     serializer_class = PlantaSerializer
     permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        cultivoId = self.request.query_params.get('cultivo', None)
+        if cultivoId is not None:
+            queryset = Planta.objects.filter(cultivo__id=cultivoId)
+        else:
+            queryset = Planta.objects.all()
+        return queryset
 
 
-class TareaViewSet(viewsets.ModelViewSet):
+class TareaViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = Tarea.objects.all()
     serializer_class = TareaSerializer
     permission_classes = [permissions.IsAuthenticated]
@@ -69,3 +97,10 @@ class TareaViewSet(viewsets.ModelViewSet):
             queryset = Tarea.objects.all()
         return queryset
 
+
+class MisTareasViewSet(viewsets.ReadOnlyModelViewSet):
+    queryset = Tarea.objects.all()
+    serializer_class = TareaSerializer
+    permission_classes = [permissions.IsAuthenticated]
+    def get_queryset(self):
+        return Tarea.objects.filter(responsables__id=self.request.user.id).order_by('-fechaInicial')

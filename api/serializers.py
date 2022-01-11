@@ -60,12 +60,26 @@ class CriteroFincaSerializer(serializers.ModelSerializer):
         fields = ('criterio','ficheroSoporte','linkSoporte','fechaRegistro','fechaCaduca','aprobado',)
 
 
+class TipoCultivoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = TipoCultivo
+        fields = ('id','tipoCultivo',)
+
+
+class CultivoSerializer(serializers.ModelSerializer):
+    tipoCultivo = TipoCultivoSerializer(many=False, read_only=True)
+    class Meta:
+        model = Cultivo
+        fields = ('id','finca','tipoCultivo','fechaInicio',)
+
+
 class FincaSerializer(serializers.ModelSerializer):
     posicion = PosicionSerializer(many=False, read_only=True)
     criterios = CriteroFincaSerializer(source='criteriofinca_set', many=True, read_only=True)
+    cultivos = CultivoSerializer(source='cultivo_set', many=True, read_only=True)
     class Meta:
         model = Finca
-        fields = ('nombreFinca','vereda','posicion','criterios',)
+        fields = ('id','nombreFinca','vereda','posicion','criterios','cultivos',)
 
 
 class EmpleadoSerializer(serializers.ModelSerializer):

@@ -9,9 +9,12 @@ router = routers.DefaultRouter()
 router.register(r'users', views.UserViewSet)
 router.register(r'groups', views.GroupViewSet)
 router.register(r'menu', views.MenuViewSet)
+router.register(r'me', views.EmpleadoViewSet)
 router.register(r'plantas', views.PlantaViewSet)
 router.register(r'fincas', views.FincaViewSet)
+router.register(r'cultivos', views.CultivoViewSet)
 router.register(r'tareas', views.TareaViewSet)
+router.register(r'mistareas', views.MisTareasViewSet)
 
 urlpatterns = [
     path('rest-auth/', include('rest_auth.urls')),

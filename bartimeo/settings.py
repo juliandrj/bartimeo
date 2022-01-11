@@ -12,6 +12,7 @@ https://docs.djangoproject.com/en/3.2/ref/settings/
 
 import os
 import ldap
+import datetime
 from django_auth_ldap.config import LDAPSearch, PosixGroupType
 from pathlib import Path
 
@@ -78,6 +79,10 @@ REST_FRAMEWORK = {
         'rest_framework.authentication.SessionAuthentication',
         'rest_framework.authentication.BasicAuthentication',
     ),
+}
+
+JWT_AUTH = {
+    'JWT_EXPIRATION_DELTA': datetime.timedelta(days=5),
 }
 #FIN REST API
 
